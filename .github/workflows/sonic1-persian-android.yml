@@ -85,13 +85,30 @@ jobs:
           patched = Path('/tmp/s1disasm/s1built.bin')
           before = original.read_bytes()
           after = patched.read_bytes()
-          if len(before) != len(after):
-              raise SystemExit(f'ROM size changed unexpectedly: {len(before)} -> {len(after)}')
+          if len(after) > len(before):
+              raise SystemExit(f'Patched ROM unexpectedly grew: {len(before)} -> {len(after)}')
           if before == after:
               raise SystemExit('Persian title patch did not change the ROM')
+          if len(after) < len(before):
+              missing = len(before) - len(after)
+              if missing > 0x1000 or missing % 2:
+                  raise SystemExit(f'Unexpected ROM truncation: {missing} bytes')
+              # Preserve the original cartridge padding bytes so the ROM keeps
+              # its exact 512 KiB size after the compressed Nemesis asset shrinks.
+              after += before[len(after):]
+          patched = bytearray(after)
+          patched[0x1A4:0x1A8] = (len(patched) - 1).to_bytes(4, 'big')
+          checksum = sum(
+              int.from_bytes(patched[i:i+2], 'big')
+              for i in range(0x200, len(patched), 2)
+          ) & 0xFFFF
+          patched[0x18E:0x190] = checksum.to_bytes(2, 'big')
+          after = bytes(patched)
           (root / 'app/src/main/assets/sonic1.md').write_bytes(after)
           (root / 'persian-title-patched.md').write_bytes(after)
           print('ROM_SIZE=' + str(len(after)))
+          print('ROM_HEADER_END=' + after[0x1A4:0x1A8].hex())
+          print('ROM_CHECKSUM=' + after[0x18E:0x190].hex())
           print('ORIGINAL_SHA256=' + hashlib.sha256(before).hexdigest())
           print('PERSIAN_PATCHED_SHA256=' + hashlib.sha256(after).hexdigest())
           print('PERSIAN_TITLE_PATCH=verified')

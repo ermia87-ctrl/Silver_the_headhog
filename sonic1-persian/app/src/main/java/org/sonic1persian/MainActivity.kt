@@ -1,6 +1,7 @@
 package org.sonic1persian
 
 import android.app.Activity
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Base64
@@ -9,15 +10,12 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import java.io.ByteArrayOutputStream
 import java.util.zip.ZipInputStream
 
 class MainActivity : Activity() {
     private lateinit var web: WebView
-    private val romPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-        if (uri != null) loadSelectedRom(uri)
-    }
+    private val pickRomRequest = 41
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +35,21 @@ class MainActivity : Activity() {
 
     private inner class AndroidBridge {
         @JavascriptInterface fun openRomPicker() {
-            runOnUiThread { romPicker.launch(arrayOf("*/*")) }
+            runOnUiThread {
+                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "*/*"
+                }
+                startActivityForResult(intent, pickRomRequest)
+            }
+        }
+    }
+
+    @Deprecated("Legacy document picker callback")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == pickRomRequest && resultCode == RESULT_OK) {
+            data?.data?.let { loadSelectedRom(it) }
         }
     }
 

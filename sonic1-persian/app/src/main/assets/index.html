@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fa" dir="rtl"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>سونیک ۱ فارسی</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#071b38;color:#fff;font-family:Tahoma,Arial,sans-serif;text-align:center}
+header{padding:12px;background:linear-gradient(120deg,#0876ce,#06346d);font-size:22px;font-weight:bold}
+#intro{padding:18px 12px}button{border:0;border-radius:12px;padding:13px 20px;background:#ffd52a;color:#17243c;font-size:17px;font-weight:bold}
+#game{width:100vw;height:calc(100vh - 50px);background:#000;display:none;direction:ltr}
+#hint{font-size:13px;color:#c9dcf6;line-height:1.8;margin:14px}
+</style></head><body>
+<header>سونیک خارپشت — نسخهٔ فارسی</header>
+<section id="intro"><h2>بازی کلاسیک سونیک ۱</h2>
+<p>فایل ZIP یا ROM بازی‌ای را که در اختیار داری انتخاب کن تا اجرا شود.</p>
+<button onclick="AndroidBridge.openRomPicker()">انتخاب فایل بازی</button>
+<div id="hint">فرمت‌ها: ZIP شامل فایل MD/BIN/GEN یا خود فایل ROM.<br>برای بارگذاری موتور شبیه‌ساز، اتصال اینترنت لازم است.</div></section>
+<div id="game"></div>
+<script>
+window.loadSonicRom=function(name,b64){
+ document.getElementById('intro').style.display='none';document.getElementById('game').style.display='block';
+ window.EJS_player='#game';window.EJS_core='segaMD';window.EJS_gameName=name;
+ window.EJS_gameUrl='data:application/octet-stream;base64,'+b64;
+ window.EJS_pathtodata='https://cdn.emulatorjs.org/stable/data/';window.EJS_startOnLoaded=true;
+ var old=document.getElementById('emulator-loader');if(old)old.remove();
+ var s=document.createElement('script');s.id='emulator-loader';s.src=window.EJS_pathtodata+'loader.js';
+ s.onerror=function(){alert('موتور بازی بارگذاری نشد. اتصال اینترنت را بررسی کن.');};document.body.appendChild(s);
+};
+</script></body></html>

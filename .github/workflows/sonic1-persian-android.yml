@@ -150,6 +150,39 @@ jobs:
           print('PERSIAN_TITLE_AND_HUD_PATCH=verified')
           print('PERSIAN_HUD_SHA256=' + hashlib.sha256(after).hexdigest())
           PY
+      - name: Connect Persian credits, Try Again and Level Select inside ROM
+        run: |
+          set -euo pipefail
+          TOOL="$(find /tmp/clownnemesis/build -type f -name clownnemesis-tool -perm -111 | head -n 1)"
+          test -n "$TOOL"
+          python tools/patch_credits_level_select.py /tmp/s1disasm "$TOOL"
+          cd /tmp/s1disasm
+          lua5.4 build.lua
+          test -s s1built.bin
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          root = Path('/home/runner/work/Silver_the_headhog/Silver_the_headhog/sonic1-persian')
+          current = root / 'app/src/main/assets/sonic1.md'
+          rebuilt = Path('/tmp/s1disasm/s1built.bin')
+          before = current.read_bytes()
+          after = rebuilt.read_bytes()
+          if len(after) != len(before):
+              raise SystemExit(f'ROM size changed during Persian integration: {len(before)} -> {len(after)}')
+          if after == before:
+              raise SystemExit('Credits/Level Select patch did not change ROM')
+          patched = bytearray(after)
+          patched[0x1A4:0x1A8] = (len(patched) - 1).to_bytes(4, 'big')
+          checksum = sum(int.from_bytes(patched[i:i+2], 'big') for i in range(0x200, len(patched), 2)) & 0xFFFF
+          patched[0x18E:0x190] = checksum.to_bytes(2, 'big')
+          after = bytes(patched)
+          current.write_bytes(after)
+          (root / 'persian-credits-level-select-patched.md').write_bytes(after)
+          print('ROM_SIZE=' + str(len(after)))
+          print('ROM_CHECKSUM=' + after[0x18E:0x190].hex())
+          print('PERSIAN_CREDITS_TRY_AGAIN_LEVEL_SELECT=verified')
+          print('ROM_SHA256=' + hashlib.sha256(after).hexdigest())
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: sonic1-persian-title-rom
@@ -159,6 +192,9 @@ jobs:
             sonic1-persian/title-patch/patch-report.json
             sonic1-persian/persian-title-patched.md
             sonic1-persian/persian-hud-patched.md
+            sonic1-persian/persian-credits-level-select-patched.md
+            sonic1-persian/credits-level-select-patch/*.png
+            sonic1-persian/credits-level-select-patch/integration-report.json
             sonic1-persian/hud-patch/*.png
             sonic1-persian/hud-patch/hud-patch-report.json
       - uses: actions/upload-artifact@v4

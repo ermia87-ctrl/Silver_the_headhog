@@ -23,6 +23,22 @@ jobs:
           mkdir -p app/src/main/assets
           unzip -p "Sonic The Hedgehog (USA, Europe).zip" "$ROM_ENTRY" > app/src/main/assets/sonic1.md
           test -s app/src/main/assets/sonic1.md
+      - name: Bundle the Mega Drive emulator locally for offline playback
+        run: |
+          set -euo pipefail
+          DATA="app/src/main/assets/data"
+          mkdir -p "$DATA/cores"
+          BASE="https://cdn.emulatorjs.org/stable/data"
+          curl --fail --location --retry 3 "$BASE/loader.js" -o "$DATA/loader.js"
+          curl --fail --location --retry 3 "$BASE/emulator.min.js" -o "$DATA/emulator.min.js"
+          curl --fail --location --retry 3 "$BASE/emulator.min.css" -o "$DATA/emulator.min.css"
+          curl --fail --location --retry 3 "$BASE/version.json" -o "$DATA/version.json"
+          curl --fail --location --retry 3 "$BASE/cores/genesis_plus_gx-wasm.data" -o "$DATA/cores/genesis_plus_gx-wasm.data"
+          test -s "$DATA/loader.js"
+          test -s "$DATA/emulator.min.js"
+          test -s "$DATA/emulator.min.css"
+          test -s "$DATA/cores/genesis_plus_gx-wasm.data"
+          echo "OFFLINE_EMULATOR_ASSETS=present"
       - name: Build the exact REV00 source baseline for patching
         run: |
           set -euo pipefail

@@ -57,11 +57,26 @@ jobs:
       - name: Import project
         run: godot --headless --editor --path . --quit --verbose
 
-      - name: Export debug APK (install Android template if needed)
-        timeout-minutes: 8
+      - name: Create Android debug keystore
+        run: |
+          mkdir -p "$HOME/.android"
+          keytool -genkeypair -v \
+            -keystore "$HOME/.android/debug.keystore" \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+
+      - name: Export debug APK
+        timeout-minutes: 10
+        env:
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: $HOME/.android/debug.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
         run: |
           mkdir -p build
-          godot --headless --path . --install-android-build-template --export-debug "Android" build/Silver-the-Hedgehog.apk --verbose
+          godot --headless --path . --export-debug "Android" build/Silver-the-Hedgehog.apk --verbose
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

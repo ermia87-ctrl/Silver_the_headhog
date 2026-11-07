@@ -105,8 +105,15 @@ def main():
     if count_score != 4:
         raise SystemExit(f"Expected 4 SCORE mappings, found {count_score}")
     mapping = mapping.replace(old_score, new_score)
-    import re
-    ring_pattern = re.compile(r'^[ \\t]*spritePiece\\s+\\$20, -\\$60, 1, 2, 0, 0, 0, [01], 1\\s*;.*
+    ring_lines = mapping.splitlines()
+    count_ring = 0
+    for index, line in enumerate(ring_lines):
+        if "spritePiece" in line and "$20, -$60, 1, 2, 0, 0, 0," in line:
+            ring_lines[index] = "; Persian RINGS label uses four glyphs; old separate S tile removed"
+            count_ring += 1
+    if count_ring != 4:
+        raise SystemExit(f"Expected 4 RINGS mappings, found {count_ring}")
+    mapping = "\n".join(ring_lines) + "\n"
     mapping_path.write_text(mapping, encoding="utf-8")
 
     report = {

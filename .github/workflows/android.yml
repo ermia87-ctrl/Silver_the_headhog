@@ -70,10 +70,6 @@ jobs:
 
       - name: Export debug APK
         timeout-minutes: 10
-        env:
-          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: $HOME/.android/debug.keystore
-          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
-          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
         run: |
           mkdir -p build
           godot --headless --path . --export-debug "Android" build/Silver-the-Hedgehog.apk --verbose

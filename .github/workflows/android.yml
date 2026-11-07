@@ -57,13 +57,11 @@ jobs:
       - name: Import project
         run: godot --headless --editor --path . --quit --verbose
 
-      - name: Install Android build template
-        run: godot --headless --editor --path . --install-android-build-template
-
-      - name: Export debug APK
+      - name: Export debug APK (install Android template if needed)
+        timeout-minutes: 8
         run: |
           mkdir -p build
-          godot --headless --path . --export-debug "Android" build/Silver-the-Hedgehog.apk --verbose
+          godot --headless --path . --install-android-build-template --export-debug "Android" build/Silver-the-Hedgehog.apk --verbose
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

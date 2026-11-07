@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Render Persian Sonic 1 labels into Mega Drive 4bpp tile data.
+"""Render the checked-in fa-IR catalog as Mega Drive 4bpp glyph tiles.
 
-This produces graphics assets only. It deliberately does not patch the ROM:
-the game's compressed-art pointers and sprite mappings must be updated and
-verified before these tiles can safely be inserted.
+This connects translations/fa-IR.json to the graphics-generation stage.
+It does NOT insert the graphics into the ROM: Nemesis streams and in-game
+sprite mappings still require a verified ROM patch.
 """
 from __future__ import annotations
 
@@ -16,34 +16,37 @@ from PIL import Image, ImageDraw, ImageFont
 import arabic_reshaper
 from bidi.algorithm import get_display
 
-LABELS = {
-    "press_start": "برای شروع دکمه‌ای بزنید",
-    "score": "امتیاز",
-    "time": "زمان",
-    "rings": "حلقه‌ها",
-    "try_again": "دوباره تلاش کن",
-    "level_select": "انتخاب مرحله",
-    "team_presents": "تیم سونیک تقدیم می‌کند",
+ROOT = Path(__file__).resolve().parents[1]
+CATALOG = ROOT / "translations" / "fa-IR.json"
+KEY_MAP = {
+    "press_start": "press_start_button",
+    "score": "score",
+    "time": "time",
+    "rings": "rings",
+    "try_again": "try_again",
+    "level_select": "level_select",
+    "team_presents": "sonic_team_presents",
 }
+
 
 def find_font() -> str:
     candidates = [
         "/usr/share/fonts/truetype/noto/NotoNaskhArabic-Regular.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
     ]
-    for p in candidates:
-        if Path(p).exists():
-            return p
+    for path in candidates:
+        if Path(path).exists():
+            return path
     try:
-        p = subprocess.check_output(
-            ["fc-match", "-f", "%{file}", "Noto Naskh Arabic"],
-            text=True,
+        path = subprocess.check_output(
+            ["fc-match", "-f", "%{file}", "Noto Naskh Arabic"], text=True
         ).strip()
-        if p and Path(p).exists():
-            return p
+        if path and Path(path).exists():
+            return path
     except (OSError, subprocess.CalledProcessError):
         pass
     raise SystemExit("No Arabic-capable font found. Install fonts-noto-core.")
+
 
 def encode_tile_4bpp(tile: Image.Image) -> bytes:
     px = tile.load()
@@ -56,28 +59,37 @@ def encode_tile_4bpp(tile: Image.Image) -> bytes:
             for plane in range(4):
                 if value & (1 << plane):
                     planes[plane] |= 1 << bit
-        for plane in range(4):
-            out.append(planes[plane])
+        out.extend(planes)
     return bytes(out)
+
 
 def main() -> None:
     out = Path(sys.argv[1] if len(sys.argv) > 1 else "persian-font")
     out.mkdir(parents=True, exist_ok=True)
+    catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
+    source = catalog["game"]
+    labels = {key: source[value] for key, value in KEY_MAP.items()}
     font_path = find_font()
     font = ImageFont.truetype(font_path, 13)
-    manifest = {"font": font_path, "format": "Mega Drive 4bpp, 8x8 tiles", "labels": {}}
+    manifest = {
+        "locale": catalog.get("locale", "fa-IR"),
+        "direction": catalog.get("direction", "rtl"),
+        "font": font_path,
+        "format": "Mega Drive 4bpp, 8x8 tiles",
+        "catalog": "translations/fa-IR.json",
+        "labels": {},
+    }
 
-    for key, text in LABELS.items():
+    for key, text in labels.items():
         shaped = get_display(arabic_reshaper.reshape(text))
         probe = Image.new("L", (1, 1), 0)
-        draw = ImageDraw.Draw(probe)
-        bbox = draw.textbbox((0, 0), shaped, font=font)
+        bbox = ImageDraw.Draw(probe).textbbox((0, 0), shaped, font=font)
         width = max(8, bbox[2] - bbox[0] + 4)
         height = max(8, bbox[3] - bbox[1] + 2)
         image = Image.new("L", (width, height), 0)
-        d = ImageDraw.Draw(image)
-        d.text((2 - bbox[0], 1 - bbox[1]), shaped, fill=255, font=font)
-        # Pad to complete 8x8 tiles.
+        ImageDraw.Draw(image).text(
+            (2 - bbox[0], 1 - bbox[1]), shaped, fill=255, font=font
+        )
         padded_w = (image.width + 7) // 8 * 8
         padded_h = (image.height + 7) // 8 * 8
         padded = Image.new("L", (padded_w, padded_h), 0)
@@ -86,19 +98,16 @@ def main() -> None:
         mono.save(out / f"{key}.png")
 
         raw = bytearray()
-        tile_count = 0
         for ty in range(0, padded_h, 8):
             for tx in range(0, padded_w, 8):
-                tile = mono.crop((tx, ty, tx + 8, ty + 8))
-                raw.extend(encode_tile_4bpp(tile))
-                tile_count += 1
+                raw.extend(encode_tile_4bpp(mono.crop((tx, ty, tx + 8, ty + 8))))
         (out / f"{key}.4bpp").write_bytes(raw)
         manifest["labels"][key] = {
             "persian": text,
             "shaped": shaped,
             "width_px": padded_w,
             "height_px": padded_h,
-            "tile_count": tile_count,
+            "tile_count": len(raw) // 32,
             "bytes": len(raw),
             "png": f"{key}.png",
             "tiles": f"{key}.4bpp",
@@ -108,6 +117,7 @@ def main() -> None:
         json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     print(json.dumps(manifest, ensure_ascii=False, indent=2))
+
 
 if __name__ == "__main__":
     main()

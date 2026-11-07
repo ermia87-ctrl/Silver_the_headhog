@@ -200,9 +200,9 @@ jobs:
       - name: Name the final Persian APK clearly
         run: |
           set -euo pipefail
-          cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/Sonic-Persian-Gulf.apk
+          cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/Sonic-Persian-Gulf-Preview.apk
           test -s app/build/outputs/apk/debug/Sonic-Persian-Gulf.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: Sonic-Persian-Gulf
+          name: Sonic-Persian-Gulf-Preview
           path: sonic1-persian/app/build/outputs/apk/debug/Sonic-Persian-Gulf.apk

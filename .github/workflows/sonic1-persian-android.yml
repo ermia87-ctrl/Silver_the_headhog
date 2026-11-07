@@ -61,6 +61,21 @@ jobs:
           sudo apt-get install -y -qq fonts-noto-core
           python -m pip install --quiet pillow arabic-reshaper python-bidi
           python tools/build_persian_font.py persian-font
+      - name: Build Nemesis compressor and encode Persian glyph tiles
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --recurse-submodules https://github.com/Clownacy/clownnemesis.git /tmp/clownnemesis
+          cmake -S /tmp/clownnemesis -B /tmp/clownnemesis/build -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/clownnemesis/build --config Release --parallel 2
+          TOOL="$(find /tmp/clownnemesis/build -type f -name clownnemesis-tool -perm -111 | head -n 1)"
+          test -n "$TOOL"
+          python tools/compress_persian_tiles.py persian-font persian-font-nemesis "$TOOL"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sonic1-persian-nemesis-glyphs
+          path: |
+            sonic1-persian/persian-font-nemesis/*.nem
+            sonic1-persian/persian-font-nemesis/compression-report.json
       - name: Generate original ROM graphics atlas for Persian localization
         run: |
           python -m pip install --quiet pillow

@@ -228,7 +228,7 @@ func _physics_process(delta: float) -> void:
 
     var axis := _input_axis()
     var yaw := visual.rotation.y
-    move_dir = Vector3(axis.x, 0, axis.y).rotated(Vector3.UP, yaw).normalized()
+    move_dir = Vector3(axis.x, 0, axis.y).normalized()
     var boosting := bool(controls.get("boost", false)) or Input.is_key_pressed(KEY_SHIFT)
     var target_speed := BOOST_SPEED if boosting else WALK_SPEED
     var target_velocity := move_dir * target_speed
@@ -270,8 +270,7 @@ func _physics_process(delta: float) -> void:
 
     move_and_slide()
     camera_pivot.global_position = camera_pivot.global_position.lerp(global_position + Vector3(0, 1.4, 0), minf(1.0, delta * 8.0))
-    camera_pivot.rotation.y = lerp_angle(camera_pivot.rotation.y, visual.rotation.y, delta * 5.0)
-    camera.look_at(global_position + Vector3(0, 1.2, -4.2).rotated(Vector3.UP, visual.rotation.y), Vector3.UP)
+    camera.look_at(global_position + Vector3(0, 1.2, -4.2), Vector3.UP)
 
     var speed := Vector2(velocity.x, velocity.z).length()
     var stride := sin(run_time * (19.0 if boosting else 12.0)) * minf(1.0, speed / 5.0)

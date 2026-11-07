@@ -1,6 +1,7 @@
 package org.sonic1persian
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -16,12 +17,12 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         window.decorView.systemUiVisibility =
             View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-            View.SYSTEM_UI_FLAG immersiveSticky
-        setContentView(PrototypeGameView())
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        setContentView(PrototypeGameView(this))
     }
 }
 
-private class PrototypeGameView : View(null) {
+private class PrototypeGameView(context: Context) : View(context) {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var playerX = 150f
     private var playerY = 0f
@@ -46,7 +47,7 @@ private class PrototypeGameView : View(null) {
         val now = System.nanoTime()
         val dt = if (lastTime == 0L) 0.016f else min(.04f, (now - lastTime) / 1_000_000_000f)
         lastTime = now
-        update(dt, w, h)
+        update(dt, w)
 
         canvas.drawColor(Color.rgb(105, 194, 245))
         paint.color = Color.rgb(180, 231, 255)
@@ -87,7 +88,7 @@ private class PrototypeGameView : View(null) {
         paint.textSize = 25f
         canvas.drawText("امتیاز: $score     حلقه‌ها: $rings", 24f, 38f, paint)
         paint.textSize = 17f
-        canvas.drawText("نسخه آزمایشی فارسی — شخصیت و مراحل اصلی هنوز اضافه نشده‌اند", 24f, 66f, paint)
+        canvas.drawText("دموی آزمایشی فارسی — گرافیک و مراحل اصلی بعداً اضافه می‌شوند", 24f, 66f, paint)
 
         drawButton(canvas, RectF(24f, h - 88f, 112f, h - 20f), "◀")
         drawButton(canvas, RectF(122f, h - 88f, 210f, h - 20f), "▶")
@@ -95,7 +96,7 @@ private class PrototypeGameView : View(null) {
         postInvalidateOnAnimation()
     }
 
-    private fun update(dt: Float, w: Float, h: Float) {
+    private fun update(dt: Float, w: Float) {
         if (left) speed = max(-260f, speed - 900f * dt)
         if (right) speed = min(520f, speed + 900f * dt)
         if (!left && !right) speed *= .90f
@@ -130,8 +131,7 @@ private class PrototypeGameView : View(null) {
         val w = width.toFloat()
         val h = height.toFloat()
         when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN,
-            MotionEvent.ACTION_MOVE -> {
+            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN, MotionEvent.ACTION_MOVE -> {
                 left = false
                 right = false
                 for (i in 0 until event.pointerCount) {

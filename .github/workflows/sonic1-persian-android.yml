@@ -113,6 +113,43 @@ jobs:
           print('PERSIAN_PATCHED_SHA256=' + hashlib.sha256(after).hexdigest())
           print('PERSIAN_TITLE_PATCH=verified')
           PY
+      - name: Replace SCORE TIME and RINGS HUD labels with Persian tiles
+        run: |
+          set -euo pipefail
+          python tools/patch_hud_persian.py /tmp/s1disasm /tmp/clownnemesis/build/clownnemesis-tool
+          cd /tmp/s1disasm
+          lua5.4 build.lua
+          test -s s1built.bin
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          root = Path('/home/runner/work/Silver_the_headhog/Silver_the_headhog/sonic1-persian')
+          current = root / 'app/src/main/assets/sonic1.md'
+          rebuilt = Path('/tmp/s1disasm/s1built.bin')
+          before = current.read_bytes()
+          after = rebuilt.read_bytes()
+          if len(after) > len(before):
+              raise SystemExit(f'Persian HUD build unexpectedly grew: {len(before)} -> {len(after)}')
+          if before == after:
+              raise SystemExit('Persian HUD patch did not change the ROM')
+          if len(after) < len(before):
+              missing = len(before) - len(after)
+              if missing > 0x1000 or missing % 2:
+                  raise SystemExit(f'Unexpected ROM truncation: {missing} bytes')
+              after += before[len(after):]
+          patched = bytearray(after)
+          patched[0x1A4:0x1A8] = (len(patched) - 1).to_bytes(4, 'big')
+          checksum = sum(int.from_bytes(patched[i:i+2], 'big') for i in range(0x200, len(patched), 2)) & 0xFFFF
+          patched[0x18E:0x190] = checksum.to_bytes(2, 'big')
+          after = bytes(patched)
+          (root / 'app/src/main/assets/sonic1.md').write_bytes(after)
+          (root / 'persian-title-patched.md').write_bytes(after)
+          (root / 'persian-hud-patched.md').write_bytes(after)
+          print('ROM_SIZE=' + str(len(after)))
+          print('ROM_CHECKSUM=' + after[0x18E:0x190].hex())
+          print('PERSIAN_TITLE_AND_HUD_PATCH=verified')
+          print('PERSIAN_HUD_SHA256=' + hashlib.sha256(after).hexdigest())
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: sonic1-persian-title-rom
@@ -121,6 +158,9 @@ jobs:
             sonic1-persian/title-patch/press-start-persian.4bpp
             sonic1-persian/title-patch/patch-report.json
             sonic1-persian/persian-title-patched.md
+            sonic1-persian/persian-hud-patched.md
+            sonic1-persian/hud-patch/*.png
+            sonic1-persian/hud-patch/hud-patch-report.json
       - uses: actions/upload-artifact@v4
         with:
           name: sonic1-persian-nemesis-glyphs

@@ -94,13 +94,16 @@ func _make_character() -> void:
     var muzzle := _mat(Color(0.94, 0.96, 0.98), 0.0, 0.52)
     var cyan := _mat(Color(0.02, 0.76, 1.0), 0.35, 0.22, true)
     var gold := _mat(Color(1.0, 0.72, 0.12), 0.55, 0.22, true)
-    var red := _mat(Color(0.78, 0.08, 0.14), 0.18, 0.28)
+    var shoe_blue := _mat(Color(0.03, 0.48, 0.82), 0.28, 0.24)
     var black := _mat(Color(0.018, 0.025, 0.04), 0.15, 0.18)
     var white := _mat(Color(1.0, 1.0, 1.0), 0.0, 0.2)
 
     # Body silhouette, chest and face.
     _ellipsoid(visual, Vector3(0, 1.05, 0.02), Vector3(0.78, 1.08, 0.62), fur)
     _ellipsoid(visual, Vector3(0, 1.20, -0.30), Vector3(0.57, 0.66, 0.28), muzzle)
+    # Silver signature chest fur and cyan forehead crest.
+    _spike(visual, Vector3(0, 1.48, -0.43), Vector3(0.42, 0.70, 0.42), muzzle, Vector3(-72, 0, 0))
+    _ellipsoid(visual, Vector3(0, 2.47, -0.48), Vector3(0.16, 0.34, 0.075), cyan)
     _ellipsoid(visual, Vector3(0, 2.02, -0.02), Vector3(1.0, 0.92, 0.86), fur)
     _ellipsoid(visual, Vector3(0, 1.76, -0.46), Vector3(0.67, 0.36, 0.28), muzzle)
     _ellipsoid(visual, Vector3(0, 1.91, -0.59), Vector3(0.15, 0.11, 0.12), black)
@@ -128,8 +131,8 @@ func _make_character() -> void:
     for arm in [left_arm, right_arm]:
         _ellipsoid(arm, Vector3(0, -0.25, 0), Vector3(0.30, 0.62, 0.32), fur)
         _ellipsoid(arm, Vector3(0, -0.57, -0.10), Vector3(0.34, 0.30, 0.34), muzzle)
-        _ellipsoid(arm, Vector3(0, -0.04, 0), Vector3(0.40, 0.15, 0.40), gold)
-        _ellipsoid(arm, Vector3(0, -0.04, 0), Vector3(0.43, 0.07, 0.43), cyan)
+        _ellipsoid(arm, Vector3(0, -0.04, 0), Vector3(0.43, 0.17, 0.43), gold)
+        _ellipsoid(arm, Vector3(0, -0.59, -0.10), Vector3(0.30, 0.12, 0.30), white)
 
     left_leg = Node3D.new()
     right_leg = Node3D.new()
@@ -139,9 +142,10 @@ func _make_character() -> void:
     visual.add_child(right_leg)
     for leg in [left_leg, right_leg]:
         _ellipsoid(leg, Vector3(0, -0.13, 0), Vector3(0.31, 0.57, 0.32), fur)
-        _ellipsoid(leg, Vector3(0, -0.40, -0.18), Vector3(0.57, 0.28, 0.78), red)
+        _ellipsoid(leg, Vector3(0, -0.40, -0.18), Vector3(0.57, 0.28, 0.78), shoe_blue)
         _ellipsoid(leg, Vector3(0, -0.53, -0.20), Vector3(0.57, 0.10, 0.78), black)
-        _ellipsoid(leg, Vector3(0, -0.29, -0.40), Vector3(0.36, 0.10, 0.16), muzzle)
+        _ellipsoid(leg, Vector3(0, -0.29, -0.40), Vector3(0.36, 0.10, 0.16), white)
+        _ellipsoid(leg, Vector3(0, -0.12, 0.02), Vector3(0.42, 0.13, 0.42), gold)
 
 func _make_touch_ui() -> void:
     var layer := CanvasLayer.new()

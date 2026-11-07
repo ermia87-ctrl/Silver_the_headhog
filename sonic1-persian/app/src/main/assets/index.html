@@ -3,77 +3,37 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#06152f">
+<meta name="theme-color" content="#000000">
 <title>سونیک ۱ فارسی</title>
 <style>
-:root{color-scheme:dark;--blue:#087fe5;--cyan:#53d7ff;--gold:#ffd43b;--ink:#06152f}
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:radial-gradient(ellipse at 50% -10%,#13559b 0,#0a2b57 42%,#06152f 100%);color:#fff;font-family:Tahoma,"Noto Naskh Arabic",Arial,sans-serif}
-body{min-height:100vh;display:flex;flex-direction:column;align-items:center}
-header{width:100%;padding:14px 18px;display:flex;align-items:center;justify-content:center;gap:10px;background:#031128aa;border-bottom:1px solid #64c8ff44;font-weight:900;font-size:18px;letter-spacing:.2px}
-.brand-dot{width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 14px var(--gold)}
-main{width:min(100%,560px);padding:20px 18px 30px;flex:1}
-.hero{position:relative;overflow:hidden;border:1px solid #71cfff55;border-radius:24px;background:linear-gradient(145deg,#0879d9,#06428e 55%,#06265a);box-shadow:0 18px 45px #0006}
-.hero-art{display:block;width:100%;height:auto;max-height:245px}
-.hero-copy{padding:0 20px 22px;text-align:center}
-.eyebrow{color:#bceaff;font-size:12px;font-weight:bold;letter-spacing:1px}
-h1{font-size:27px;margin:8px 0 6px;text-shadow:0 3px 0 #00336b}
-.subtitle{margin:0;color:#e1f4ff;font-size:14px;line-height:1.9}
-.panel{margin-top:18px;padding:18px;border:1px solid #8ccfff38;border-radius:20px;background:#0b2448dd;box-shadow:0 10px 28px #0003}
-.panel h2{margin:0 0 8px;font-size:17px}
-.panel p{margin:0;color:#c9ddf5;font-size:13px;line-height:1.9}
-button{width:100%;margin-top:16px;border:0;border-radius:14px;padding:15px 18px;background:linear-gradient(180deg,#ffe46b,#ffc400);color:#14243d;font:900 16px Tahoma,Arial,sans-serif;box-shadow:0 5px 0 #a87500;cursor:pointer}
-button:active{transform:translateY(3px);box-shadow:0 2px 0 #a87500}
-.features{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px}
-.chip{padding:7px 11px;border-radius:999px;background:#dff5ff18;border:1px solid #a6e3ff35;color:#dff5ff;font-size:11px}
-#game{display:none;width:100vw;height:100dvh;background:#000;direction:ltr}
-#status{display:none;margin-top:12px;color:#bdeaff;font-size:12px;line-height:1.7}
-footer{padding:12px;color:#86a9d0;font-size:10px;text-align:center}
-@media(max-height:650px){main{padding-top:10px}.hero-art{max-height:160px}.hero-copy{padding-bottom:14px}h1{font-size:22px}}
+html,body,#game{margin:0;width:100%;height:100%;min-height:100%;overflow:hidden;background:#000}
+body{position:fixed;inset:0}
+#game{direction:ltr}
+#boot-error{display:none;position:fixed;inset:0;z-index:99999;background:#000;color:#fff;font:16px Tahoma,sans-serif;text-align:center;padding:24px;box-sizing:border-box;direction:rtl}
 </style>
+<script>
+window.EJS_player = '#game';
+window.EJS_core = 'genesis_plus_gx';
+window.EJS_gameName = 'سونیک ۱ فارسی';
+window.EJS_gameUrl = 'https://appassets.androidplatform.net/assets/sonic1.md';
+window.EJS_pathtodata = 'https://appassets.androidplatform.net/assets/data/';
+window.EJS_startOnLoaded = true;
+window.EJS_volume = 1;
+window.EJS_language = 'en-US';
+window.EJS_backgroundColor = '#000000';
+window.EJS_gameID = 'sonic1-persian-rev00';
+window.addEventListener('error', function () {
+  var box = document.getElementById('boot-error');
+  if (box) {
+    box.style.display = 'block';
+    box.textContent = 'بازی بارگذاری نشد. فایل‌های داخلی موتور اجرا یا ROM مشکل دارند.';
+  }
+});
+</script>
+<script src="data/loader.js"></script>
 </head>
 <body>
-<header><span class="brand-dot"></span><span>سونیک ۱ فارسی</span><span class="brand-dot"></span></header>
-<main id="intro">
-<section class="hero" aria-label="تصویر بازی کلاسیک سونیک">
-<svg class="hero-art" viewBox="0 0 560 245" role="img" aria-label="چشم‌انداز رنگی تپه‌های سبز و حلقه‌های طلایی">
-<defs>
-<linearGradient id="sky" x2="0" y2="1"><stop stop-color="#24b8ff"/><stop offset="1" stop-color="#0750a5"/></linearGradient>
-<linearGradient id="hill" x2="0" y2="1"><stop stop-color="#9cf35b"/><stop offset="1" stop-color="#15934d"/></linearGradient>
-<linearGradient id="ring" x2="0" y2="1"><stop stop-color="#fff18a"/><stop offset=".45" stop-color="#ffc400"/><stop offset="1" stop-color="#e68a00"/></linearGradient>
-</defs>
-<rect width="560" height="245" fill="url(#sky)"/>
-<g fill="#fff" opacity=".82"><path d="M58 48c10-18 37-17 45 0 18-7 33 5 33 18H43c0-10 6-16 15-18z"/><path d="M375 35c8-14 29-14 36 0 14-6 27 4 27 15h-82c0-8 8-15 19-15z"/></g>
-<g fill="none" stroke="url(#ring)" stroke-width="8"><ellipse cx="105" cy="116" rx="15" ry="24"/><ellipse cx="160" cy="92" rx="13" ry="21"/><ellipse cx="444" cy="108" rx="15" ry="24"/><ellipse cx="495" cy="76" rx="12" ry="19"/></g>
-<path d="M0 178Q90 105 190 168T390 153T560 155V245H0Z" fill="#0a6e58"/>
-<path d="M0 195Q100 132 210 190T410 180T560 184V245H0Z" fill="url(#hill)"/>
-<path d="M0 218Q125 180 235 215T450 207T560 211V245H0Z" fill="#087b49"/>
-<g fill="#fff" opacity=".75"><path d="M40 202l8-15 8 15zm38 18l7-13 7 13zm380-25l8-15 8 15zm38 22l7-13 7 13z"/></g>
-<path d="M0 238H560" stroke="#ffe16b" stroke-width="5" opacity=".9"/>
-</svg>
-<div class="hero-copy"><div class="eyebrow">نسخهٔ کلاسیک • مگا درایو</div><h1>ماجراجویی سونیک</h1><p class="subtitle">بازی اصلی را با رابط فارسی و کنترل لمسی اجرا کن.</p></div>
-</section>
-<section class="panel">
-<h2>شروع بازی</h2>
-<p>فایل ZIP یا ROM قانونی خودت را انتخاب کن. فایل‌های MD، BIN و GEN پشتیبانی می‌شوند. برای بارگیری موتور شبیه‌ساز به اینترنت نیاز است.</p>
-<button onclick="AndroidBridge.openRomPicker()">انتخاب فایل بازی</button>
-<div class="features"><span class="chip">رابط فارسی</span><span class="chip">حالت افقی</span><span class="chip">کنترل لمسی</span></div>
-<div id="status" role="status"></div>
-</section>
-<footer>این برنامه یک پوستهٔ اندرویدی برای اجرای فایل بازی انتخابی کاربر است.</footer>
-</main>
 <div id="game"></div>
-<script>
-window.loadSonicRom=function(name,b64){
- const intro=document.getElementById('intro'),game=document.getElementById('game'),status=document.getElementById('status');
- intro.style.display='none';game.style.display='block';
- window.EJS_player='#game';window.EJS_core='segaMD';window.EJS_gameName=name;
- window.EJS_gameUrl='data:application/octet-stream;base64,'+b64;
- window.EJS_pathtodata='https://cdn.emulatorjs.org/stable/data/';window.EJS_startOnLoaded=true;
- const old=document.getElementById('emulator-loader');if(old)old.remove();
- const s=document.createElement('script');s.id='emulator-loader';s.src=window.EJS_pathtodata+'loader.js';
- s.onerror=function(){game.style.display='none';intro.style.display='block';status.style.display='block';status.textContent='موتور اجرا بارگذاری نشد؛ اتصال اینترنت را بررسی کن و دوباره تلاش کن.';};
- document.body.appendChild(s);
-};
-</script>
-</body></html>
+<div id="boot-error">در حال اجرای بازی…</div>
+</body>
+</html>

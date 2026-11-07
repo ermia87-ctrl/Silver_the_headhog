@@ -23,6 +23,31 @@ jobs:
           mkdir -p app/src/main/assets
           unzip -p "Sonic The Hedgehog (USA, Europe).zip" "$ROM_ENTRY" > app/src/main/assets/sonic1.md
           test -s app/src/main/assets/sonic1.md
+      - name: Build the exact REV00 source baseline for patching
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --branch AS https://github.com/sonicretro/s1disasm.git /tmp/s1disasm
+          sed -i 's/^Revision = 1$/Revision = 0/' /tmp/s1disasm/sonic.asm
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lua5.4
+          chmod +x /tmp/s1disasm/build_tools/Linux-x86_64/asl /tmp/s1disasm/build_tools/Linux-x86_64/p2bin
+          cd /tmp/s1disasm
+          lua5.4 build.lua
+          test -s s1built.bin
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          original = Path('/home/runner/work/Silver_the_headhog/Silver_the_headhog/sonic1-persian/app/src/main/assets/sonic1.md').read_bytes()
+          rebuilt = Path('/tmp/s1disasm/s1built.bin').read_bytes()
+          print('Original ROM:', len(original), hashlib.sha256(original).hexdigest())
+          print('REV00 source build:', len(rebuilt), hashlib.sha256(rebuilt).hexdigest())
+          print('BASELINE_MATCH=' + ('exact' if original == rebuilt else 'not-exact'))
+          Path('/home/runner/work/Silver_the_headhog/Silver_the_headhog/sonic1-persian/rev00-source-build.bin').write_bytes(rebuilt)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sonic1-rev00-source-build
+          path: sonic1-persian/rev00-source-build.bin
       - name: Inspect ROM revision and printable text
         run: |
           python tools/inspect_rom_header.py app/src/main/assets/sonic1.md | tee rom-inspection.txt

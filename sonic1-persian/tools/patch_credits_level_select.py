@@ -179,7 +179,9 @@ Tit_LoadText:
     asset_delta=0
     for asset_name in ["artnem/Title Screen Foreground.nem","artnem/HUD.nem"]:
         original_size=int(subprocess.check_output(["git","-C",str(SRC),"cat-file","-s","HEAD:"+asset_name],text=True).strip())
-        asset_delta += original_size-(SRC/asset_name).stat().st_size
+        current_size=(SRC/asset_name).stat().st_size
+        align2=lambda n:(n+1)&~1
+        asset_delta += align2(original_size)-align2(current_size)
 
     marker="""\tif PaddingOptimization=0
 \t\tif Revision=0

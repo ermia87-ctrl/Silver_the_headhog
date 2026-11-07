@@ -71,12 +71,12 @@ def main() -> None:
         shaped = get_display(arabic_reshaper.reshape(text))
         probe = Image.new("L", (1, 1), 0)
         draw = ImageDraw.Draw(probe)
-        bbox = draw.textbbox((0, 0), shaped, font=font, direction="rtl")
+        bbox = draw.textbbox((0, 0), shaped, font=font)
         width = max(8, bbox[2] - bbox[0] + 4)
         height = max(8, bbox[3] - bbox[1] + 2)
         image = Image.new("L", (width, height), 0)
         d = ImageDraw.Draw(image)
-        d.text((2 - bbox[0], 1 - bbox[1]), shaped, fill=255, font=font, direction="rtl")
+        d.text((2 - bbox[0], 1 - bbox[1]), shaped, fill=255, font=font)
         # Pad to complete 8x8 tiles.
         padded_w = (image.width + 7) // 8 * 8
         padded_h = (image.height + 7) // 8 * 8

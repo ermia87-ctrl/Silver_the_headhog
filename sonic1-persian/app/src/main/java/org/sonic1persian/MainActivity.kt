@@ -26,11 +26,26 @@ class MainActivity : Activity() {
             settings.allowFileAccess = true
             settings.mediaPlaybackRequiresUserGesture = false
             webChromeClient = WebChromeClient()
-            webViewClient = WebViewClient()
+            webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+                    loadBundledRom()
+                }
+            }
             addJavascriptInterface(AndroidBridge(), "AndroidBridge")
         }
         setContentView(web)
         web.loadUrl("file:///android_asset/index.html")
+    }
+
+    private fun loadBundledRom() {
+        try {
+            val rom = assets.open("sonic1.md").use { it.readBytes() }
+            val encoded = Base64.encodeToString(rom, Base64.NO_WRAP)
+            web.evaluateJavascript("window.loadSonicRom('Sonic 1','$encoded')", null)
+        } catch (_: Exception) {
+            // The app can still load a ROM selected manually if no bundled asset exists.
+        }
     }
 
     private inner class AndroidBridge {

@@ -119,7 +119,7 @@ func _physics_process(delta: float) -> void:
         velocity.y = JUMP_SPEED
     if direction.length() > 0.1:
         visual.rotation.y = lerp_angle(visual.rotation.y, atan2(direction.x, -direction.y), delta * 8.0)
-    if Input.is_key_just_pressed(KEY_E) or (bool(controls.get("psi", false)) and not controls.get("psi_latched", false)):
+    if (Input.is_key_pressed(KEY_E) and not controls.get("psi_latched", false)) or (bool(controls.get("psi", false)) and not controls.get("psi_latched", false)):
         controls["psi_latched"] = true
         _telekinesis()
     if not bool(controls.get("psi", false)):

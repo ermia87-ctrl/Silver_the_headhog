@@ -184,7 +184,7 @@ Tit_LoadText:
     marker="""\tif PaddingOptimization=0
 \t\tif Revision=0
 \t\t\tdcb.b\t$62A,$FF"""
-    assets="""Nem_PersianAssets_Start:
+    assets=f"""Nem_PersianAssets_Start:
 Nem_PersianSTP:\tbinclude\t"artnem/Persian - Sonic Team Presents.nem"
 \t\teven
 Nem_PersianTryAgain:\tbinclude\t"artnem/Persian - Try Again.nem"

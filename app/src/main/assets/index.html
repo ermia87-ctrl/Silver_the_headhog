@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#071326"><title>سونیک دش فارسی</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#071326;color:white;font-family:Tahoma,"Noto Naskh Arabic",sans-serif;touch-action:none}canvas{display:block;width:100%;height:100%}
+#hud{position:fixed;inset:0;pointer-events:none;padding:18px;display:flex;justify-content:space-between;align-items:flex-start;text-shadow:0 2px 5px #001} .pill{background:#071a32c9;border:1px solid #5eeaff88;border-radius:18px;padding:9px 14px;font-weight:bold;font-size:14px;backdrop-filter:blur(6px)}#score{font-size:22px;color:#ffe66d}
+#overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#06152be8,#071326b8);padding:24px}#panel{width:min(440px,100%);text-align:center;border:1px solid #53e8ff88;border-radius:28px;padding:28px 22px;background:linear-gradient(160deg,#17365c,#08182d);box-shadow:0 18px 70px #0009}h1{font-size:clamp(27px,8vw,42px);margin:0 0 8px;color:#7cecff}p{line-height:2;color:#d6e8f8;margin:10px 0 20px}.btn{border:0;border-radius:18px;padding:14px 24px;background:linear-gradient(100deg,#00c7f2,#2878ff);color:#001326;font-weight:900;font-size:18px;min-width:150px}.small{font-size:12px;color:#91adc9;margin-top:16px}
+#controls{position:fixed;bottom:18px;left:0;right:0;display:flex;justify-content:space-between;padding:0 20px;pointer-events:none}#controls button{pointer-events:auto;background:#08223ac9;color:#dffaff;border:1px solid #7beaff88;border-radius:50%;width:60px;height:60px;font-size:22px;font-weight:bold;touch-action:none}
+</style></head><body>
+<canvas id="game"></canvas>
+<div id="hud"><div class="pill">حلقه‌ها: <span id="rings">۰</span></div><div class="pill">امتیاز <span id="score">۰</span></div></div>
+<div id="controls"><button id="left">◀</button><button id="jump">⬆</button><button id="slide">⬇</button><button id="right">▶</button></div>
+<div id="overlay"><div id="panel"><h1>سونیک دش فارسی</h1><p>در مسیر شهر آینده بدو، حلقه‌ها را جمع کن و از موانع جاخالی بده!<br>برای تغییر مسیر انگشت را چپ و راست بکش؛ برای پرش بالا و برای سر خوردن پایین بکش.</p><button class="btn" id="start">شروع بازی</button><div class="small">نسخهٔ فن‌مید • ساخته‌شده برای اندروید</div></div></div>
+<script>
+(()=> {
+const c=document.getElementById('game'),ctx=c.getContext('2d'),overlay=document.getElementById('overlay'),scoreEl=document.getElementById('score'),ringsEl=document.getElementById('rings');
+let W=0,H=0,dpr=1,playing=false,paused=false,last=0,dist=0,score=0,rings=0,lane=0,targetLane=0,jump=0,slide=0,speed=0.34,items=[],spawn=0,shake=0;
+const fa=n=>Math.floor(n).toLocaleString('fa-IR');
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',resize);resize();
+function reset(){dist=0;score=0;rings=0;lane=0;targetLane=0;jump=0;slide=0;speed=.34;items=[];spawn=0;shake=0;last=performance.now()}
+function pathY(z){return H*.43+(1-z)*H*.60}
+function laneX(l,z){const half=(W*.42)*(1-z*.82);return W/2+l*half}
+function poly(points,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.moveTo(...points[0]);for(let p of points.slice(1))ctx.lineTo(...p);ctx.closePath();ctx.fill()}
+function drawWorld(t){
+let sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#07152d');sky.addColorStop(.5,'#1b5680');sky.addColorStop(1,'#f28b68');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+let sun=ctx.createRadialGradient(W*.72,H*.25,2,W*.72,H*.25,H*.18);sun.addColorStop(0,'#fff4c4');sun.addColorStop(1,'#ffb36a00');ctx.fillStyle=sun;ctx.fillRect(0,0,W,H);
+for(let i=0;i<12;i++){let x=((i*137+dist*.04)% (W+100))-50;let bh=H*(.12+(i%4)*.055);ctx.fillStyle=i%2?'#173955':'#102c49';ctx.fillRect(x,H*.43-bh,35+i%3*20,bh);ctx.fillStyle='#3bd5e8';for(let y=H*.43-bh+12;y<H*.42;y+=17)ctx.fillRect(x+8,y,5,7)}
+poly([[W*.08,H],[W*.34,H*.43],[W*.66,H*.43],[W*.92,H]],'#172d43');
+poly([[W*.17,H],[W*.39,H*.43],[W*.61,H*.43],[W*.83,H]],'#314d60');
+for(let i=-1;i<=1;i++){let x1=W/2+i*W*.14,x2=W/2+i*W*.42;ctx.strokeStyle='#b9f7ff55';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x1,H*.43);ctx.lineTo(x2,H);ctx.stroke()}
+for(let k=0;k<18;k++){let z=((k/18+dist*.003)%1),y=pathY(z),half=W*(.14+z*.28);ctx.fillStyle='#f3db9c';ctx.fillRect(W/2-half,y,4+z*3,2+z*2)}
+}
+function drawRing(x,y,r){ctx.save();ctx.strokeStyle='#ffe35b';ctx.lineWidth=Math.max(2,r*.18);ctx.shadowColor='#ffcc36';ctx.shadowBlur=r*.7;ctx.beginPath();ctx.ellipse(x,y,r*.68,r,0,0,Math.PI*2);ctx.stroke();ctx.restore()}
+function drawObstacle(it){let z=it.z;if(z<0||z>1)return;let x=laneX(it.lane,z),y=pathY(z),s=.25+z*1.45;ctx.save();ctx.translate(x,y);ctx.scale(s,s);if(it.type==='ring'){drawRing(0,-45,17)}else if(it.type==='barrier'){ctx.fillStyle='#ed594f';ctx.fillRect(-28,-58,56,58);ctx.fillStyle='#ffd27a';ctx.fillRect(-28,-58,56,9);ctx.fillStyle='#8c2835';ctx.fillRect(-20,-42,40,7)}else if(it.type==='drone'){ctx.fillStyle='#7cecff';ctx.beginPath();ctx.arc(0,-55,21,0,Math.PI*2);ctx.fill();ctx.fillStyle='#09233b';ctx.fillRect(-34,-60,68,9);ctx.fillStyle='#ff6b5e';ctx.fillRect(-8,-59,16,5)}else{ctx.fillStyle='#d5e6f1';ctx.fillRect(-30,-18,60,18);ctx.fillStyle='#6a8498';ctx.fillRect(-23,-28,46,10)}ctx.restore()}
+function drawHero(t){let x=laneX(lane,1),base=H*.83-jump*H*.24;ctx.save();ctx.translate(x,base);if(slide>0)ctx.scale(1,.55);let bob=playing?Math.sin(t*.018)*4:0;ctx.translate(0,bob);
+ctx.fillStyle='#03101e55';ctx.beginPath();ctx.ellipse(0,15,35,9,0,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#e9f3f7';ctx.beginPath();ctx.ellipse(0,-40,24,32,0,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#f8fbff';ctx.beginPath();ctx.ellipse(0,-20,18,17,0,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#e8f4fa';ctx.beginPath();ctx.ellipse(0,-76,25,25,0,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#e8f4fa';for(let i=0;i<5;i++){let a=-2.55+i*.38;ctx.beginPath();ctx.moveTo(-8+i*4,-88);ctx.lineTo(-43+i*8,-125+Math.abs(i-2)*5);ctx.lineTo(3+i*2,-99);ctx.closePath();ctx.fill()}
+ctx.fillStyle='#50e7ff';ctx.beginPath();ctx.ellipse(-9,-78,6,11,-.2,0,Math.PI*2);ctx.ellipse(9,-78,6,11,.2,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#06283b';ctx.beginPath();ctx.arc(-8,-77,2.5,0,Math.PI*2);ctx.arc(10,-77,2.5,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#d7e5ed';poly([[-23,-91],[-34,-117],[-10,-102]],'#e9f4f8');poly([[23,-91],[34,-117],[10,-102]],'#e9f4f8');
+ctx.fillStyle='#48dff8';poly([[-6,-99],[0,-119],[7,-99]],'#50eaff');
+ctx.fillStyle='#e8f3f7';ctx.beginPath();ctx.ellipse(0,-59,12,8,0,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#ffc94e';ctx.fillRect(-27,-47,8,14);ctx.fillRect(19,-47,8,14);
+ctx.fillStyle='#1479db';let run=Math.sin(t*.025)*8;ctx.fillRect(-20,-13+run,15,27);ctx.fillRect(5,-13-run,15,27);ctx.fillStyle='#30cfff';ctx.fillRect(-24,8+run,24,10);ctx.fillRect(3,8-run,24,10);
+ctx.restore()}
+function spawnItems(){let lanePick=Math.floor(Math.random()*3)-1;let type=Math.random()<.58?'barrier':Math.random()<.5?'drone':'block';items.push({lane:lanePick,z:0,type});if(Math.random()<.72)for(let i=0;i<4;i++)items.push({lane:lanePick,z:-.14-i*.12,type:'ring'})}
+function update(dt,t){if(!playing||paused)return;dist+=dt*speed;score+=dt*12;speed=Math.min(.62,.34+dist*.000025);lane+=(targetLane-lane)*Math.min(1,dt*.012);jump=Math.max(0,jump-dt*.0022);slide=Math.max(0,slide-dt*.0018);spawn-=dt;if(spawn<=0){spawn=850+Math.random()*550;spawnItems()}for(let it of items){it.z+=dt*.00042*(speed/.34);if(it.type==='ring'&&it.z>.88&&it.z<1.02&&Math.abs(lane-it.lane)<.45&&!it.got){it.got=true;rings++;score+=50}}items=items.filter(it=>it.z<1.12&&!it.got);
+for(let it of items){if(it.type!=='ring'&&it.z>.91&&it.z<1.02&&Math.abs(lane-it.lane)<.48){if((it.type==='barrier'&&jump<.22)||(it.type==='drone'&&slide<.18)||(it.type==='block'&&jump<.18&&slide<.18)){playing=false;overlay.style.display='flex';document.querySelector('#panel').innerHTML='<h1>پایان مسیر!</h1><p>امتیاز: '+fa(score)+'<br>حلقه‌ها: '+fa(rings)+'</p><button class="btn" id="start">دوباره بازی کن</button><div class="small">برای رکورد بهتر دوباره تلاش کن</div>';document.getElementById('start').onclick=start;break}}}
+scoreEl.textContent=fa(score);ringsEl.textContent=fa(rings)}
+function render(t){ctx.save();if(shake)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);drawWorld(t);items.slice().sort((a,b)=>a.z-b.z).forEach(drawObstacle);drawHero(t);ctx.restore()}
+function frame(t){let dt=Math.min(40,t-last||16);last=t;update(dt,t);render(t);requestAnimationFrame(frame)}
+function start(){reset();playing=true;paused=false;overlay.style.display='none';last=performance.now()}
+document.getElementById('start').onclick=start;
+window.showPause=()=>{if(playing){paused=!paused;overlay.style.display=paused?'flex':'none';if(paused)document.querySelector('#panel').innerHTML='<h1>بازی متوقف شد</h1><p>هر وقت آماده‌ای ادامه بده.</p><button class="btn" id="resume">ادامه</button>';let b=document.getElementById('resume');if(b)b.onclick=()=>{paused=false;overlay.style.display='none';last=performance.now()}}};
+function act(a){if(a==='left')targetLane=Math.max(-1,targetLane-1);if(a==='right')targetLane=Math.min(1,targetLane+1);if(a==='jump'&&jump===0){jump=1;slide=0}if(a==='slide'){slide=1;jump=0}}
+['left','right','jump','slide'].forEach(id=>{let el=document.getElementById(id);el.addEventListener('pointerdown',e=>{e.preventDefault();act(id)})});
+let sx=0,sy=0;c.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY});c.addEventListener('pointerup',e=>{let dx=e.clientX-sx,dy=e.clientY-sy;if(Math.max(Math.abs(dx),Math.abs(dy))<20)return;if(Math.abs(dx)>Math.abs(dy))act(dx>0?'right':'left');else act(dy<0?'jump':'slide')});
+requestAnimationFrame(frame);
+})();
+</script></body></html>

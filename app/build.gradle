@@ -1,0 +1,12 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'com.fan.persiandash'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.fan.persiandash'
+        minSdk 23
+        targetSdk 28
+        versionCode 1
+        versionName '1.0'
+    }
+}

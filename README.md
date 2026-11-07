@@ -1,15 +1,21 @@
-# Silver the Hedgehog — Android 3D Prototype
+# سونیک دش فارسی | Persian Dash
 
-An original Godot 4 prototype featuring a Silver-inspired 3D character, third-person camera, floating-island course, touch controls, jumping, and a basic telekinesis interaction.
+پروژهٔ مستقل اندروید با رابط کاملاً فارسی و کنترل لمسی. این یک بازی رانر فن‌مید و الهام‌گرفته از سبک بازی‌های رانر سه‌مسیره است؛ از فایل‌ها، مدل‌ها یا کد اختصاصی Sonic Dash استفاده نمی‌کند.
 
-## Open in Godot
-- Godot 4.3 or newer
-- Open this folder as a project and run `Main.tscn`
-- Desktop: WASD to move, Space to jump, E to pick up/release and throw a nearby physics orb
-- Touch controls appear on screen.
+## اجرا
+پروژه را با Android Studio باز کنید و اجرای اپلیکیشن را روی دستگاه یا شبیه‌ساز انتخاب کنید.
 
-## Build APK
-Push to `main` or choose **Actions → Build Android APK → Run workflow**.
-Download the artifact named `Silver-the-Hedgehog-Android` after a successful run.
+## ساخت APK
+در محیط دارای Android SDK و Gradle 8.7 و JDK 17:
+`gradle assembleDebug`
 
-This is an early original prototype, not a finished Sonic 2006 port. The character is built from primitive 3D geometry; polished models, animations, levels, sound, and device testing remain future work.
+خروجی: `app/build/outputs/apk/debug/app-debug.apk`
+
+## کنترل
+- کشیدن انگشت به چپ/راست: تغییر مسیر
+- کشیدن به بالا: پرش
+- کشیدن به پایین: سر خوردن
+- لمس دکمه‌ها: کنترل جایگزین
+
+## وضعیت
+نسخهٔ اولیهٔ قابل‌بازی؛ گرافیک سه‌بعدی‌نما با Canvas و پرسپکتیو است، نه مدل سه‌بعدی AAA یا بازسازی رسمی SEGA.

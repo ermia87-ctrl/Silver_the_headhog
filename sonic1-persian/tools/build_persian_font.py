@@ -57,7 +57,7 @@ def encode_tile_4bpp(tile: Image.Image) -> bytes:
                 if value & (1 << plane):
                     planes[plane] |= 1 << bit
         for plane in range(4):
-            out.extend((planes[plane], 0))
+            out.append(planes[plane])
     return bytes(out)
 
 def main() -> None:

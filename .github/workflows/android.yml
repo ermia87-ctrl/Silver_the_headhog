@@ -32,7 +32,7 @@ jobs:
       - name: Set up Godot and export templates
         uses: chickensoft-games/setup-godot@v2
         with:
-          version: 4.3.3
+          version: 4.3
           use-dotnet: false
           include-templates: true
 

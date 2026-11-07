@@ -105,12 +105,32 @@ def main():
     if count_score != 4:
         raise SystemExit(f"Expected 4 SCORE mappings, found {count_score}")
     mapping = mapping.replace(old_score, new_score)
-    old_ring = 'spritePiece\t$20, -$60, 1, 2, 0, 0, 0, 0, 1\t; "S"'
-    new_ring = '; Persian RINGS label uses four glyphs; old separate S tile removed'
-    count_ring = mapping.count(old_ring)
+    import re
+    ring_pattern = re.compile(r'^[ \\t]*spritePiece\\s+\\$20, -\\$60, 1, 2, 0, 0, 0, [01], 1\\s*;.*
+    mapping_path.write_text(mapping, encoding="utf-8")
+
+    report = {
+      "patch":"persian_hud_labels",
+      "labels":reports,
+      "score_digits_mapping":"preserved; E slot freed and digit block starts at tile $1A",
+      "rings_counter_mapping":"preserved; standalone S sprite removed",
+      "original_asset_bytes":len(original),
+      "patched_asset_bytes":len(patched),
+      "original_sha256":hashlib.sha256(original).hexdigest(),
+      "patched_sha256":hashlib.sha256(patched).hexdigest(),
+      "nemesis_roundtrip":"exact",
+      "score_map_replacements":count_score,
+      "rings_map_replacements":count_ring
+    }
+    (OUT/"hud-patch-report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    print(json.dumps(report,ensure_ascii=False,indent=2))
+
+if __name__ == "__main__":
+    main()
+ , re.M)
+    mapping, count_ring = ring_pattern.subn('; Persian RINGS label uses four glyphs; old separate S tile removed', mapping)
     if count_ring != 4:
         raise SystemExit(f"Expected 4 RINGS mappings, found {count_ring}")
-    mapping = mapping.replace(old_ring, new_ring)
     mapping_path.write_text(mapping, encoding="utf-8")
 
     report = {

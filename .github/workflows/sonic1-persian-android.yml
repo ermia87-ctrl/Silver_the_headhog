@@ -15,6 +15,14 @@ jobs:
         working-directory: sonic1-persian
     steps:
       - uses: actions/checkout@v4
+      - name: Prepare the user's supplied game ROM
+        run: |
+          set -euo pipefail
+          ROM_ENTRY="$(unzip -Z1 "Sonic The Hedgehog (USA, Europe).zip" | grep -Ei '\.(md|bin|gen)$' | head -n 1)"
+          test -n "$ROM_ENTRY"
+          mkdir -p app/src/main/assets
+          unzip -p "Sonic The Hedgehog (USA, Europe).zip" "$ROM_ENTRY" > app/src/main/assets/sonic1.md
+          test -s app/src/main/assets/sonic1.md
       - uses: actions/setup-java@v4
         with:
           distribution: temurin

@@ -26,6 +26,10 @@ jobs:
       - name: Inspect ROM revision and printable text
         run: |
           python tools/inspect_rom_header.py app/src/main/assets/sonic1.md | tee rom-inspection.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sonic1-original-rom-working-copy
+          path: sonic1-persian/app/src/main/assets/sonic1.md
       - name: Generate Persian glyph tiles for Mega Drive
         run: |
           sudo apt-get update -qq

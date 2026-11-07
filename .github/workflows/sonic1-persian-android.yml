@@ -70,6 +70,40 @@ jobs:
           TOOL="$(find /tmp/clownnemesis/build -type f -name clownnemesis-tool -perm -111 | head -n 1)"
           test -n "$TOOL"
           python tools/compress_persian_tiles.py persian-font persian-font-nemesis "$TOOL"
+      - name: Replace the title PRESS START graphics with Persian tiles
+        run: |
+          set -euo pipefail
+          python tools/patch_title_press_start.py /tmp/s1disasm /tmp/clownnemesis/build/clownnemesis-tool
+          cd /tmp/s1disasm
+          lua5.4 build.lua
+          test -s s1built.bin
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          root = Path('/home/runner/work/Silver_the_headhog/Silver_the_headhog/sonic1-persian')
+          original = root / 'app/src/main/assets/sonic1.md'
+          patched = Path('/tmp/s1disasm/s1built.bin')
+          before = original.read_bytes()
+          after = patched.read_bytes()
+          if len(before) != len(after):
+              raise SystemExit(f'ROM size changed unexpectedly: {len(before)} -> {len(after)}')
+          if before == after:
+              raise SystemExit('Persian title patch did not change the ROM')
+          (root / 'app/src/main/assets/sonic1.md').write_bytes(after)
+          (root / 'persian-title-patched.md').write_bytes(after)
+          print('ROM_SIZE=' + str(len(after)))
+          print('ORIGINAL_SHA256=' + hashlib.sha256(before).hexdigest())
+          print('PERSIAN_PATCHED_SHA256=' + hashlib.sha256(after).hexdigest())
+          print('PERSIAN_TITLE_PATCH=verified')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sonic1-persian-title-rom
+          path: |
+            sonic1-persian/title-patch/press-start-persian.png
+            sonic1-persian/title-patch/press-start-persian.4bpp
+            sonic1-persian/title-patch/patch-report.json
+            sonic1-persian/persian-title-patched.md
       - uses: actions/upload-artifact@v4
         with:
           name: sonic1-persian-nemesis-glyphs

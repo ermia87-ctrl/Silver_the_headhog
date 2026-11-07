@@ -184,6 +184,33 @@ jobs:
             sonic1-persian/persian-font/*.png
             sonic1-persian/persian-font/*.4bpp
             sonic1-persian/persian-font/manifest.json
+      - name: Set up Java for Android packaging
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install Android platform and build tools
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Build Persian Android APK
+        run: |
+          set -euo pipefail
+          gradle --no-daemon :app:assembleDebug
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          cp "$APK" "app/build/outputs/apk/debug/Sonic-Persian-Gulf-Preview.apk"
+          sha256sum "app/build/outputs/apk/debug/Sonic-Persian-Gulf-Preview.apk"
+      - name: Upload Persian Android preview APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sonic-Persian-Gulf-Preview
+          path: sonic1-persian/app/build/outputs/apk/debug/Sonic-Persian-Gulf-Preview.apk
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
           name: sonic1-rom-tile-atlas

@@ -108,18 +108,22 @@ func _make_character() -> void:
     _ellipsoid(visual, Vector3(0, 1.76, -0.46), Vector3(0.67, 0.36, 0.28), muzzle)
     _ellipsoid(visual, Vector3(0, 1.91, -0.59), Vector3(0.15, 0.11, 0.12), black)
 
-    # Large expressive eyes with cyan irises.
+    # Large connected eyes, shaped like the stylized Sonic Dash face.
     for side in [-1.0, 1.0]:
-        _ellipsoid(visual, Vector3(side * 0.22, 2.10, -0.48), Vector3(0.29, 0.39, 0.14), white)
-        _ellipsoid(visual, Vector3(side * 0.19, 2.09, -0.605), Vector3(0.12, 0.25, 0.07), cyan)
-        _ellipsoid(visual, Vector3(side * 0.19, 2.09, -0.66), Vector3(0.055, 0.18, 0.035), black)
+        _ellipsoid(visual, Vector3(side * 0.205, 2.12, -0.505), Vector3(0.31, 0.40, 0.145), white)
+        _ellipsoid(visual, Vector3(side * 0.165, 2.105, -0.635), Vector3(0.135, 0.255, 0.065), cyan)
+        _ellipsoid(visual, Vector3(side * 0.165, 2.105, -0.688), Vector3(0.062, 0.19, 0.035), black)
 
-    # Distinctive swept-back Silver quills and side tufts.
-    _spike(visual, Vector3(0, 2.72, 0.30), Vector3(0.78, 1.52, 0.76), fur, Vector3(-53, 0, 0))
-    _spike(visual, Vector3(-0.32, 2.58, 0.28), Vector3(0.66, 1.30, 0.68), fur, Vector3(-47, 0, -19))
-    _spike(visual, Vector3(0.32, 2.58, 0.28), Vector3(0.66, 1.30, 0.68), fur, Vector3(-47, 0, 19))
-    _spike(visual, Vector3(-0.62, 2.23, 0.12), Vector3(0.52, 1.00, 0.58), fur, Vector3(-8, 0, -48))
-    _spike(visual, Vector3(0.62, 2.23, 0.12), Vector3(0.52, 1.00, 0.58), fur, Vector3(-8, 0, 48))
+    # Silver's long backward-swept head quills: the tips point behind him (+Z).
+    _spike(visual, Vector3(0, 2.72, 0.34), Vector3(0.70, 1.58, 0.72), fur, Vector3(54, 0, 0))
+    _spike(visual, Vector3(-0.30, 2.62, 0.30), Vector3(0.62, 1.38, 0.62), fur, Vector3(50, 0, -17))
+    _spike(visual, Vector3(0.30, 2.62, 0.30), Vector3(0.62, 1.38, 0.62), fur, Vector3(50, 0, 17))
+    _spike(visual, Vector3(-0.60, 2.28, 0.08), Vector3(0.48, 1.02, 0.54), fur, Vector3(8, 0, -48))
+    _spike(visual, Vector3(0.60, 2.28, 0.08), Vector3(0.48, 1.02, 0.54), fur, Vector3(8, 0, 48))
+    # Pointed ears with cyan inner-ear accents.
+    for side in [-1.0, 1.0]:
+        _spike(visual, Vector3(side * 0.61, 2.55, -0.02), Vector3(0.38, 0.66, 0.30), fur, Vector3(-8, 0, side * 24))
+        _ellipsoid(visual, Vector3(side * 0.61, 2.54, -0.19), Vector3(0.12, 0.24, 0.055), cyan)
 
     # Separate articulated limbs, gloves, gold cuffs and hover shoes.
     left_arm = Node3D.new()
@@ -146,6 +150,7 @@ func _make_character() -> void:
         _ellipsoid(leg, Vector3(0, -0.53, -0.20), Vector3(0.57, 0.10, 0.78), black)
         _ellipsoid(leg, Vector3(0, -0.29, -0.40), Vector3(0.36, 0.10, 0.16), white)
         _ellipsoid(leg, Vector3(0, -0.12, 0.02), Vector3(0.42, 0.13, 0.42), gold)
+        _ellipsoid(leg, Vector3(0, -0.39, -0.48), Vector3(0.25, 0.10, 0.10), cyan)
 
 func _make_touch_ui() -> void:
     var layer := CanvasLayer.new()

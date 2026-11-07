@@ -197,7 +197,12 @@ jobs:
           gradle-version: "8.9"
       - name: Build debug APK
         run: gradle assembleDebug
+      - name: Name the final Persian APK clearly
+        run: |
+          set -euo pipefail
+          cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/Sonic-Persian-Gulf.apk
+          test -s app/build/outputs/apk/debug/Sonic-Persian-Gulf.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: sonic1-persian-debug
-          path: sonic1-persian/app/build/outputs/apk/debug/app-debug.apk
+          name: Sonic-Persian-Gulf
+          path: sonic1-persian/app/build/outputs/apk/debug/Sonic-Persian-Gulf.apk

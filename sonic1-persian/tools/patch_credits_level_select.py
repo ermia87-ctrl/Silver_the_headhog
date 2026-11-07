@@ -174,6 +174,13 @@ Tit_LoadText:
     block="LevelMenuTitle:\n"+dc(title_bytes)+"\n\nLevelMenuText:\n"+"\n".join(dc(r) for r in rows)+"\n"
     s=s[:start]+block+s[end:]
 
+    # Compensate for compressed title/HUD assets that became shorter.
+    # This preserves the original sound-driver and 512 KiB ROM boundary.
+    asset_delta=0
+    for asset_name in ["artnem/Title Screen Foreground.nem","artnem/HUD.nem"]:
+        original_size=int(subprocess.check_output(["git","-C",str(SRC),"cat-file","-s","HEAD:"+asset_name],text=True).strip())
+        asset_delta += original_size-(SRC/asset_name).stat().st_size
+
     marker="""\tif PaddingOptimization=0
 \t\tif Revision=0
 \t\t\tdcb.b\t$62A,$FF"""
@@ -188,7 +195,7 @@ Nem_PersianAssets_End:
 
 \tif PaddingOptimization=0
 \t\tif Revision=0
-\t\t\tdcb.b\t$62A-(Nem_PersianAssets_End-Nem_PersianAssets_Start),$FF"""
+\t\t\tdcb.b\t$62A+{asset_delta}-(Nem_PersianAssets_End-Nem_PersianAssets_Start),$FF"""
     if marker not in s: raise SystemExit("REV00 sound-driver padding marker not found")
     s=s.replace(marker,assets,1)
     sonic.write_text(s,encoding="utf-8")
@@ -197,8 +204,8 @@ Nem_PersianAssets_End:
     for src,name in [(a,"Persian - Sonic Team Presents.nem"),(b,"Persian - Try Again.nem"),(c,"Persian - Level Select.nem")]:
         (art/name).write_bytes(src.read_bytes())
     total=sum((art/n).stat().st_size for n in ["Persian - Sonic Team Presents.nem","Persian - Try Again.nem","Persian - Level Select.nem"])
-    if total>0x62A: raise SystemExit(f"Persian art is {total} bytes; exceeds available 0x62A padding")
-    report={"patch":"credits_try_again_level_select","team_presents":game["sonic_team_presents"],"try_again":game["try_again"],"level_select_heading":game["level_select"],"level_rows":21,"unique_glyph_forms":forms,"level_font_tiles":tilecount,"compressed_asset_bytes":total,"padding_budget":0x62A,"credits_names_preserved":True,"nemesis_roundtrip":"exact"}
+    if total>0x62A+asset_delta: raise SystemExit(f"Persian art is {total} bytes; exceeds available padding {0x62A+asset_delta}")
+    report={"patch":"credits_try_again_level_select","team_presents":game["sonic_team_presents"],"try_again":game["try_again"],"level_select_heading":game["level_select"],"level_rows":21,"unique_glyph_forms":forms,"level_font_tiles":tilecount,"compressed_asset_bytes":total,"padding_budget":0x62A+asset_delta,"existing_asset_size_compensation":asset_delta,"credits_names_preserved":True,"nemesis_roundtrip":"exact"}
     (OUT/"integration-report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(json.dumps(report,ensure_ascii=False,indent=2))
 

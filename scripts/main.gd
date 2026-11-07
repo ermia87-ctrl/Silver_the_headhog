@@ -198,11 +198,11 @@ func _psi_crate(pos: Vector3) -> void:
     crate.add_child(shape)
 
 func _build_route() -> void:
-    _block(self, "Main asphalt road", Vector3(0, -0.65, -62), Vector3(17.0, 1.0, 170.0), ROAD)
-    _block(self, "Left pavement", Vector3(-10.0, -0.28, -62), Vector3(3.0, 0.5, 170.0), CONCRETE)
-    _block(self, "Right pavement", Vector3(10.0, -0.28, -62), Vector3(3.0, 0.5, 170.0), CONCRETE)
+    _block(self, "Main asphalt road", Vector3(0, -0.5, -62), Vector3(17.0, 1.0, 170.0), ROAD)
+    _block(self, "Left pavement", Vector3(-10.0, -0.25, -62), Vector3(3.0, 0.5, 170.0), CONCRETE)
+    _block(self, "Right pavement", Vector3(10.0, -0.25, -62), Vector3(3.0, 0.5, 170.0), CONCRETE)
     for i in range(18):
-        _block(self, "Road lane marking", Vector3(0, -0.12, 15.0 - float(i) * 9.0), Vector3(0.22, 0.035, 4.0), Color(0.82, 0.75, 0.54), false)
+        _block(self, "Road lane marking", Vector3(0, 0.03, 15.0 - float(i) * 9.0), Vector3(0.22, 0.035, 4.0), Color(0.82, 0.75, 0.54), false)
     # Barriers, broken cars, rubble and jumps create a recognisable ruined street.
     for z in [-12.0, -28.0, -47.0, -88.0, -112.0]:
         _block(self, "Concrete road barrier", Vector3(-6.7, 0.45, z), Vector3(1.0, 1.3, 5.0), Color(0.38, 0.35, 0.31))
@@ -212,7 +212,6 @@ func _build_route() -> void:
     # A collapsed ramp, elevated route and a long final jump.
     _block(self, "Ramp base", Vector3(-3.8, 0.45, -48), Vector3(5.5, 0.8, 8.0), Color(0.4, 0.43, 0.47))
     var ramp := _block(self, "Ramp", Vector3(-3.8, 1.5, -51), Vector3(5.5, 0.55, 7.0), Color(0.48, 0.49, 0.5))
-    ramp.rotation.x = deg_to_rad(-17.0)
     _block(self, "High route platform", Vector3(5.0, 5.0, -82), Vector3(8.0, 0.7, 13.0), Color(0.38, 0.43, 0.49))
     _block(self, "High route landing", Vector3(0.0, 3.1, -103), Vector3(9.0, 0.7, 9.0), Color(0.38, 0.43, 0.49))
     for i in range(5):

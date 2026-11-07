@@ -40,7 +40,7 @@ func _box(parent: Node3D, name: String, pos: Vector3, size: Vector3, color: Colo
         shape.shape = box_shape
         shape.position = pos
         host.add_child(shape)
-    return host
+    return host if solid else visual
 
 func _ring(parent: Node3D, pos: Vector3, spin: float = 1.0) -> void:
     var area := Area3D.new()
@@ -104,7 +104,7 @@ func _build_world() -> void:
 
     # Reflective water around the island.
     var water := _box(self, "Sky sea", Vector3(0, -3.0, -23), Vector3(180, 0.2, 180), Color(0.035, 0.28, 0.43), false)
-    var water_mesh := water.get_child(0) as MeshInstance3D
+    var water_mesh := water as MeshInstance3D
     water_mesh.material_override = _mat(Color(0.035, 0.28, 0.43, 0.82), 0.55, 0.18)
     water_mesh.material_override.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 
@@ -152,7 +152,7 @@ func _build_world() -> void:
 
     # A luminous goal gate at the end of the route.
     var gate := _box(self, "Goal gate", Vector3(0, 3.1, -77), Vector3(8.5, 6.0, 0.5), Color(0.08, 0.58, 0.86), false, 0.35)
-    var gate_mesh := gate.get_child(0) as MeshInstance3D
+    var gate_mesh := gate as MeshInstance3D
     gate_mesh.material_override.emission_enabled = true
     gate_mesh.material_override.emission = Color(0.05, 0.55, 1.0)
     gate_mesh.material_override.emission_energy_multiplier = 2.0

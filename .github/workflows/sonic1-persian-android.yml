@@ -26,6 +26,12 @@ jobs:
       - name: Inspect ROM revision and printable text
         run: |
           python tools/inspect_rom_header.py app/src/main/assets/sonic1.md | tee rom-inspection.txt
+      - name: Generate Persian glyph tiles for Mega Drive
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-core
+          python -m pip install --quiet pillow arabic-reshaper python-bidi
+          python tools/build_persian_font.py persian-font
       - name: Generate original ROM graphics atlas for Persian localization
         run: |
           python -m pip install --quiet pillow
@@ -36,6 +42,13 @@ jobs:
           path: |
             sonic1-persian/rom-inspection.txt
             sonic1-persian/LOCALIZATION_FINDINGS_FA.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sonic1-persian-font-tiles
+          path: |
+            sonic1-persian/persian-font/*.png
+            sonic1-persian/persian-font/*.4bpp
+            sonic1-persian/persian-font/manifest.json
       - uses: actions/upload-artifact@v4
         with:
           name: sonic1-rom-tile-atlas

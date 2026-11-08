@@ -1,0 +1,7 @@
+This app uses:
+- LibretroDroid, GPL-3.0-or-later: https://github.com/Swordfish90/LibretroDroid
+- PicoDrive libretro core, GPL-2.0-or-later: https://github.com/libretro/picodrive
+
+The Android build workflow downloads the ARM64 PicoDrive core from the official Libretro buildbot at build time. See the upstream repositories and their license files for full terms.
+
+No Sega game ROM, BIOS, music, graphics, or other proprietary game data is included.
